@@ -10,6 +10,8 @@ namespace AlonsoAdmin.HttpApi.Init.Entities
         public string DbType { get; set; }
 
         public string ConnectionString { get; set; }
+
+        public string TenantID { get; set; }
     }
 
     public class DbCreateItem: DbConnectItem

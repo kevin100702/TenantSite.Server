@@ -120,6 +120,18 @@ namespace AlonsoAdmin.HttpApi.Init.Controllers
                         .Build();
             DbConnection dbConnection = fsql.Ado.MasterPool.Get().Value; // 这儿验证 连接是否成功，这句代码可以不要，如果连接字符不变正确，为了提早发现（报异常）
             fsql.Aop.AuditValue += SyncDataAuditValue;
+            fsql.Aop.AuditValue += (a, b) =>
+            {
+                if (b.AuditValueType == AuditValueType.Insert)
+                {
+                    switch (b.Property.Name)
+                    {
+                        case "TenantID":
+                            b.Value = req.TenantID;
+                            break;
+                    }
+                }
+            };
 
             sb.Append("<li>创建数据连接对象 结束</li>");
 

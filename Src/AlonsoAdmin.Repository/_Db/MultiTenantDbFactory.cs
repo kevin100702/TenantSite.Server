@@ -117,6 +117,7 @@ namespace AlonsoAdmin.Repository
         private void DataFilterAsync(IFreeSql fsql) {
 
             fsql.GlobalFilter.Apply<IBaseSoftDelete>("SoftDelete", a => a.IsDeleted == false);
+            fsql.GlobalFilter.Apply<ITenant>("Tenant", a => a.TenantID == _authUser.Tenant.Id);
 
             //var cacheKey = string.Format(CacheKeyTemplate.PermissionGroupList, _authUser.PermissionId);
             //List<string> groupIds = new List<string>();
@@ -201,6 +202,9 @@ namespace AlonsoAdmin.Repository
             {
                 switch (e.Property.Name)
                 {
+                    case "TenantID":
+                        e.Value = _authUser.Tenant.Id;
+                        break;
                     case "CreatedBy":
                         e.Value = _authUser.Id;
                         break;
