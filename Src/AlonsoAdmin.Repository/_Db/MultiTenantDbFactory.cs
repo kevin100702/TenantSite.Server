@@ -139,7 +139,7 @@ namespace AlonsoAdmin.Repository
 
             // 处理排序字段自动取最大值插入
             if (e.Property.GetCustomAttributes(typeof(MaxValueAttribute)).Any()) {
-
+                var maxValueAttribute = e.Property.GetCustomAttribute<MaxValueAttribute>(true);
                 var entityTypeAttr = (e.EntityType.GetCustomAttribute(typeof(TableAttribute)) as FreeSql.DataAnnotations.TableAttribute);
                 string tableName = string.IsNullOrWhiteSpace(entityTypeAttr.Name) ? e.EntityType.Name : entityTypeAttr.Name; // 取得表名
 
@@ -148,22 +148,25 @@ namespace AlonsoAdmin.Repository
 
                 IFreeSql fsql = s as IFreeSql;
                 string insertValueSql = "";
+                string where = " where 1= 1";
+                if (maxValueAttribute.ByTenant == true)
+                    where += $" and TenantID = '{_authUser.Tenant.Id}'";
 
                 switch (fsql.Ado.DataType) {
                     case DataType.MySql:
                     case DataType.OdbcMySql:
-                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (IFNULL(max({fieldName}),0) + 1) max_v from {tableName}) a)";
+                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (IFNULL(max({fieldName}),0) + 1) max_v from {tableName} {where}) a)";
                         break;
                     case DataType.SqlServer:
                     case DataType.OdbcSqlServer:
-                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (isnull(max({fieldName}),0) + 1) max_v from {tableName}) a)";
+                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (isnull(max({fieldName}),0) + 1) max_v from {tableName} {where}) a)";
                         break;
                     case DataType.Oracle:
                     case DataType.OdbcOracle:
-                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (nvl(max({fieldName}),0) + 1) max_v from {tableName}) a)";
+                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (nvl(max({fieldName}),0) + 1) max_v from {tableName} {where}) a)";
                         break;
                     default:
-                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (max({fieldName}) + 1) max_v from {tableName}) a)";
+                        insertValueSql = $"(SELECT a.max_v FROM (SELECT (max({fieldName}) + 1) max_v from {tableName} {where}) a)";
                         break;
                 }
 

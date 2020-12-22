@@ -7,6 +7,6 @@ namespace AlonsoAdmin.Entities
     [AttributeUsage(AttributeTargets.Property, Inherited = false)]
     public class MaxValueAttribute:Attribute
     {
-
+        public bool ByTenant { get; set; }
     }
 }
